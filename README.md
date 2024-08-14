@@ -5,29 +5,29 @@
 Gemmini
 ====================================
 
-The Gemmini project is developing a full-system, full-stack DNN hardware exploration and evaluation platform.
-Gemmini enables architects to make useful insights into how different components of the system and software stack (outside of just the accelerator itself) interact to affect overall DNN performance.
+The Gemmini project는 전체 시스템 및 전체 스택 DNN 하드웨어 탐색 및 평가 플랫폼을 개발 중입니다.
+Gemmini는 아키텍트가 시스템 및 소프트웨어 스택의 다양한 구성 요소(가속기 자체 외부)가 상호작용하여 전체 DNN 성능에 미치는 영향을 유용하게 분석할 수 있도록 합니다.
 
-Gemmini is part of the [Chipyard](https://github.com/ucb-bar/chipyard) ecosystem, and was developed using the [Chisel](https://www.chisel-lang.org/) hardware description language.
+Gemmini는 [Chipyard](https://github.com/ucb-bar/chipyard) 생태계의 일부이며, [Chisel](https://www.chisel-lang.org/) 하드웨어 설명 언어를 사용하여 개발되었습니다.
 
-This document is intended to provide information for beginners wanting to try out Gemmini, as well as more advanced in-depth information for those who might want to start hacking on Gemmini's source code.
+이 문서는 Gemmini를 처음 시도하려는 초보자들에게 정보를 제공하고, Gemmini의 소스 코드를 해킹하려는 사람들을 위한 더 깊이 있는 정보를 제공하기 위한 것입니다.
 
-![Gemmini's high-level architecture](./img/gemmini-system.png)
+![Gemmini의 고수준 아키텍처](./img/gemmini-system.png)
 
 Quick Start
 ==========
 
-We provide here a quick guide to installing Gemmini's dependencies (Chipyard and Spike), building Gemmini hardware and software, and then running that software on our hardware simulators.
+여기에서는 Gemmini의 종속성(Chipyard 및 Spike)을 설치하고, Gemmini 하드웨어 및 소프트웨어를 빌드한 다음, 해당 소프트웨어를 하드웨어 시뮬레이터에서 실행하는 빠른 가이드를 제공합니다.
 
 Dependencies
 ---------
 
-Before beginning, install the [Chipyard dependencies](https://chipyard.readthedocs.io/en/latest/Chipyard-Basics/Initial-Repo-Setup.html#default-requirements-installation).
+시작하기 전에 [Chipyard 종속성](https://chipyard.readthedocs.io/en/latest/Chipyard-Basics/Initial-Repo-Setup.html#default-requirements-installation)을 설치하십시오.
 
 Installing Chipyard and Spike
 -----------------------------
 
-Run these steps to install Chipyard and Spike (make sure to checkout the correct Chipyard and Spike commits as shown below):
+다음 단계들을 실행하여 Chipyard와 Spike를 설치하세요(아래에 표시된 올바른 Chipyard 및 Spike 커밋을 체크아웃하는 것을 잊지 마십시오):
 
 ```shell
 git clone https://github.com/ucb-bar/chipyard.git
@@ -44,18 +44,17 @@ git submodule update --init --recursive
 
 make -C software/libgemmini install
 
-# The final step is only necessary if you want to run MIDAS simulations with
-# realistic DRAM models
+# 마지막 단계는 현실적인 DRAM 모델이 있는 MIDAS 시뮬레이션을 실행하려는 경우에만 필요합니다.
 cd -
 cd sims/firesim
-source sourceme-f1-manager.sh --skip-ssh-setup # Ignore error messages from this command
+source sourceme-f1-manager.sh --skip-ssh-setup # 이 명령에서 발생하는 오류 메시지를 무시하십시오.
 ./build-setup.sh --library --skip-validate
 ```
 
 Setting Up Gemmini
 ------------------
 
-Run the steps below to set up Gemmini configuration files, symlinks, and subdirectories:
+아래 단계들을 실행하여 Gemmini 구성 파일, 심볼릭 링크 및 하위 디렉터리를 설정하십시오:
 
 ```shell
 cd chipyard/generators/gemmini
@@ -65,307 +64,303 @@ cd chipyard/generators/gemmini
 Building Gemmini Software
 -------------------------
 
-Run the steps below to compile Gemmini programs, including large DNN models like ResNet50, and small matrix-multiplication tests.
+아래 단계들을 실행하여 Gemmini 프로그램, ResNet50과 같은 대규모 DNN 모델 및 작은 행렬 곱셈 테스트를 컴파일하십시오.
 
 ```shell
 cd chipyard/generators/gemmini/software/gemmini-rocc-tests
 ./build.sh
 ```
 
-Afterwards, you'll find RISC-V binaries in `build/`, for "baremetal" environments, Linux environments, and "proxy-kernel" environments.
+이후, `build/` 디렉터리에서 "baremetal" 환경, Linux 환경 및 "proxy-kernel" 환경용 RISC-V 바이너리를 찾을 수 있습니다.
 
-Linux binaries are meant to be executed on SoCs that run Linux.
-These binaries are dynamically linked, and support all syscalls.
-Typically, our users run them on [FireSim](https://fires.im/) simulators.
+Linux 바이너리는 Linux를 실행하는 SoC에서 실행하도록 설계되었습니다.
+이 바이너리들은 동적으로 링크되며 모든 시스템 호출을 지원합니다.
+대부분의 사용자는 이들을 [FireSim](https://fires.im/) 시뮬레이터에서 실행합니다.
 
-Baremetal binaries are meant to be run in an environment without any operating system available.
-They lack support for most syscalls, and do not support virtual memory either.
-Our users typically run them on cycle-accurate simulators like Verilator or VCS.
+Baremetal 바이너리는 운영 체제가 없는 환경에서 실행하도록 설계되었습니다.
+이들은 대부분의 시스템 호출을 지원하지 않으며 가상 메모리도 지원하지 않습니다.
+대부분의 사용자는 이들을 Verilator 또는 VCS와 같은 사이클 정확도 시뮬레이터에서 실행합니다.
 
-"Proxy-kernel" binaries are meant to be run on a stripped down version of Linux, called the ["RISC-V Proxy Kernel."](https://github.com/riscv-software-src/riscv-pk)
-These binaries support virtual memory, and are typically run on cycle-accurate simulators like Verilator.
+"Proxy-kernel" 바이너리는 ["RISC-V Proxy Kernel"](https://github.com/riscv-software-src/riscv-pk)이라는 축소된 버전의 Linux에서 실행되도록 설계되었습니다.
+이 바이너리들은 가상 메모리를 지원하며, 보통 Verilator와 같은 사이클 정확도 시뮬레이터에서 실행됩니다.
 
-**Warning:** Proxy-kernel binaries have limited heap space, so some Gemmini programs that work correctly in baremetal or Linux environments may fail on the proxy-kernel.
+**경고:** Proxy-kernel 바이너리는 힙 공간이 제한되어 있으므로 baremetal 또는 Linux 환경에서는 제대로 작동하는 일부 Gemmini 프로그램이 proxy-kernel에서 실패할 수 있습니다.
 
 Building Gemmini Hardware and Cycle-Accurate Simulators
 -----------------------------------------------
 
-Run the instructions below to build a cycle-accurate Gemmini simulator using Verilator.
+Verilator를 사용하여 사이클 정확도 Gemmini 시뮬레이터를 빌드하려면 아래 지침을 실행하십시오.
 
 ```shell
 cd chipyard/generators/gemmini
 ./scripts/build-verilator.sh
 
-# Or, if you want a simulator that can generate waveforms, run this:
+# 또는 파형을 생성할 수 있는 시뮬레이터를 원한다면 다음을 실행하십시오:
 # ./scripts/build-verilator.sh --debug
 ```
 
-After running this, in addition to the cycle-accurate simulator, you will be able to find the Verilog description of your SoC in `generated-src/`.
+이 작업을 수행한 후, 사이클 정확도 시뮬레이터 외에도 SoC의 Verilog 설명을 `generated-src/`에서 찾을 수 있습니다.
 
 Building Gemmini Functional Simulators
 ---------------------------
 
-Run the instructions below to build a functional ISA simulator for Gemmini (called "Spike").
+Gemmini의 기능적 ISA 시뮬레이터("Spike"라고 함)를 빌드하려면 아래 지침을 실행하십시오.
 
 ```shell
 cd chipyard/generators/gemmini
 ./scripts/build-spike.sh
 ```
 
-Spike typically runs _much_ faster than cycle-accurate simulators like Verilator or VCS.
-However, Spike can only verify functional correctness; it cannot give accurate performance metrics or profiling information.
+Spike는 Verilator나 VCS와 같은 사이클 정확도 시뮬레이터보다 _훨씬_ 빠르게 실행됩니다.
+그러나 Spike는 기능적 정확성만 확인할 수 있으며, 정확한 성능 지표나 프로파일링 정보를 제공할 수 없습니다.
 
 Run Simulators
 ---------------
 
-Run the instructions below to run the Gemmini RISCV binaries that we built previously, using the simulators that we built above:
+이전에 빌드한 Gemmini RISCV 바이너리를 위에서 빌드한 시뮬레이터를 사용하여 실행하려면 아래 지침을 따르십시오:
 
 ```shell
 cd chipyard/generators/gemmini
 
-# Run a large DNN workload in the functional simulator
+# 기능적 시뮬레이터에서 대규모 DNN 작업 부하 실행
 ./scripts/run-spike.sh resnet50
 
-# Run a smaller workload in baremetal mode, on a cycle-accurate simulator
+# 사이클 정확도 시뮬레이터에서 baremetal 모드로 작은 작업 부하 실행
 ./scripts/run-verilator.sh template
 
-# Run a smaller workload with the proxy-kernel, on a cycle accurate simulator
+# proxy-kernel에서 작은 작업 부하를 사이클 정확도 시뮬레이터에서 실행
 ./scripts/run-verilator.sh --pk template
 
-# Or, if you want to generate waveforms in `waveforms/`:
+# 또는, `waveforms/`에 파형을 생성하려면:
 # ./scripts/run-verilator.sh --pk --debug template
 ```
 
 Next steps
 --------
 
-Check out our [MLSys 2022 tutorial](https://sites.google.com/berkeley.edu/gemmini-tutorial-mlsys-2022) (or our earlier but more out-of-date [IISWC 2021 tutorial](https://sites.google.com/berkeley.edu/gemminitutorialiiswc2021/)) to learn how to:
-* build different types of diverse accelerators using Gemmini.
-* add custom datatypes to Gemmini.
-* write your own Gemmini programs.
-* profile your workloads using Gemmini's performance counters.
+Gemmini를 사용하여 다양한 유형의 가속기를 구축하는 방법, Gemmini에 사용자 정의 데이터 유형을 추가하는 방법, Gemmini 프로그램을 작성하는 방법, Gemmini의 성능 카운터를 사용하여 작업 부하를 프로파일링하는 방법을 배우려면 [MLSys 2022 튜토리얼](https://sites.google.com/berkeley.edu/gemmini-tutorial-mlsys-2022) (또는 이전의 더 오래된 [IISWC 2021 튜토리얼](https://sites.google.com/berkeley.edu/gemminitutorialiiswc2021/))을 확인하십시오.
 
-Also, consider learning about [FireSim](fires.im), a platform for FPGA-accelerated cycle-accurate simulation.
-We use FireSim to run end-to-end DNN workloads that would take too long to run on Verilator/VCS.
-FireSim also allows users to check that their Gemmini hardware/software will work when running on a Linux environment.
+또는 [FireSim](fires.im)에 대해 알아보세요. 이 플랫폼은 FPGA 가속 사이클 정확도 시뮬레이션을 위한 플랫폼입니다.
+우리는 Verilator/VCS에서 실행하는 데 너무 오랜 시간이 걸리는 종단 간 DNN 작업 부하를 실행하기 위해 FireSim을 사용합니다.
+FireSim은 또한 Gemmini 하드웨어/소프트웨어가 Linux 환경에서 실행될 때 작동하는지 확인할 수 있습니다.
 
-Or, continue reading the rest of this document for descriptions of Gemmini's architecture, ISA, and configuration parameters.
+또는 Gemmini의 아키텍처, ISA 및 구성 매개변수에 대한 설명을 위해 이 문서의 나머지 부분을 계속 읽으십시오.
 
 Architecture
 ================
 
-Gemmini is implemented as a RoCC accelerator with non-standard RISC-V custom instructions.
-The Gemmini unit uses the RoCC port of a Rocket or BOOM _tile_, and by default connects to the memory system through the System Bus (i.e., directly to the L2 cache).
+Gemmini는 비표준 RISC-V 사용자 정의 명령어를 사용하는 RoCC 가속기로 구현됩니다.
+Gemmini 유닛은 Rocket 또는 BOOM 타일의 RoCC 포트를 사용하며, 기본적으로 시스템 버스(즉, L2 캐시에 직접 연결)를 통해 메모리 시스템에 연결됩니다.
 
-At the heart of the accelerator lies a systolic array which performs matrix multiplications.
-By default, the matrix multiplication support both _output-stationary_ and _weight-stationary_ dataflows, which programmers can pick between at runtime.
-However, the dataflow can also be hardened at elaboration time.
+가속기의 핵심에는 행렬 곱셈을 수행하는 시스톨릭 배열이 있습니다.
+기본적으로 행렬 곱셈은 _output-stationary_와 _weight-stationary_ 데이터 흐름을 모두 지원하며, 프로그래머는 런타임에 이들 간에 선택할 수 있습니다.
+그러나 데이터 흐름은 설명 시점에 고정될 수도 있습니다.
 
-The systolic array's inputs and outputs are stored in an explicity managed scratchpad, made up of banked SRAMs.
-A DMA engine facilitates the transfer of data between main memory (which is visible to the host CPU) and the scratchpad.
+시스톨릭 배열의 입력과 출력은 뱅킹된 SRAM으로 구성된 명시적으로 관리되는 스크래치패드에 저장됩니다.
+DMA 엔진은 메인 메모리(호스트 CPU에서 볼 수 있는 메모리)와 스크래치패드 간의 데이터 전송을 용이하게 합니다.
 
-Because weight-stationary dataflows require an accumulator outside the systolic array, we add a final SRAM bank, equipped with adder units, which can be conceptually considered an extension of the scratchpad memory space. The systolic array can store results to any address in the accumulator, and can also read new inputs from any address in the accumulator. The DMA engine can also tranfer data directly between the accumulator and main memory, which is often necessary to load in biases.
+weight-stationary 데이터 흐름은 시스톨릭 배열 외부에 누산기를 필요로 하기 때문에, 우리는 누산기 메모리 공간의 확장으로 간주될 수 있는 어드레싱이 가능한 최종 SRAM 뱅크를 추가합니다.
+시스톨릭 배열은 누산기의 모든 주소에 결과를 저장할 수 있으며, 누산기에서 새로운 입력을 읽어올 수도 있습니다.
+DMA 엔진은 또한 종종 바이어스를 로드하기 위해 필요한 누산기와 메인 메모리 간의 데이터를 직접 전송할 수 있습니다.
 
-Gemmini also includes peripheral circuitry to optionally apply activation functions such as ReLU or ReLU6, scale results down by powers-of-2 to support quantized workloads, or to transpose matrices before feeding them into the systolic array to support the output-stationary dataflow.
+Gemmini는 또한 ReLU 또는 ReLU6과 같은 활성화 함수를 선택적으로 적용하거나, 양자화된 작업 부하를 지원하기 위해 결과를 2의 거듭제곱으로 축소하거나, 행렬을 전치하여 output-stationary 데이터 흐름을 지원하는 주변 회로를 포함합니다.
 
 Generator Parameters
 --------------------------
 
-Major parameters of interest include:
+주요 관심 매개변수는 다음과 같습니다:
 
-* Systolic array dimensions (``tileRows``, ``tileColumns``, ``meshRows``, ``meshColumns``): The systolic array is composed of a 2-level hierarchy, in which each tile is fully combinational, while a mesh of tiles has pipeline registers between each tile.
+* 시스톨릭 배열 차원(``tileRows``, ``tileColumns``, ``meshRows``, ``meshColumns``): 시스톨릭 배열은 각 타일이 완전히 조합적인 2단계 계층 구조로 구성되며, 타일의 메시에는 각 타일 간에 파이프라인 레지스터가 있습니다.
 
-![Gemmini's systolic two-tiered hierarchy](./img/gemmini-systolic-array.png)
+![Gemmini의 시스톨릭 2단계 계층 구조](./img/gemmini-systolic-array.png)
 
-* Dataflow parameters (``dataflow``): Determine whether the systolic array in Gemmini is output-stationary or weight-stationary, or whether it supports both dataflows so that programmers may choose between them at runtime.
+* 데이터 흐름 매개변수(``dataflow``): Gemmini의 시스톨릭 배열이 output-stationary인지 weight-stationary인지를 결정하거나, 두 데이터 흐름을 모두 지원하여 프로그래머가 런타임에 선택할 수 있도록 합니다.
 
-* Scratchpad and accumulator memory parameters (``sp_banks``, ``sp_capacity``, ``acc_capacity``): Determine the properties of the Gemmini scratchpad memory: overall capacity of the scratchpad or accumulators (in KiB), and the number of banks the scratchpad is divided into.
+* 스크래치패드 및 누산기 메모리 매개변수(``sp_banks``, ``sp_capacity``, ``acc_capacity``): Gemmini 스크래치패드 메모리의 속성을 결정합니다: 스크래치패드 또는 누산기의 전체 용량(키비바이트 단위) 및 스크래치패드가 분할되는 뱅크 수를 포함합니다.
 
-* Type parameters (``inputType``, ``outputType``, ``accType``):
-Determine the data-types flowing through different parts of a Gemmini accelerator.
-For example, ``inputType`` may be an 8-bit fixed-point number, while ``accType``, which determines the type of partial accumulations in a matrix multiplication, may be a 32-bit integer.
-``outputType`` only determines the type of the data passed between two processing elements (PEs); for example, an 8-bit multiplication may produce a 16-bit result which must be shared between PEs in a systolic array.
-    - Examples of possible datatypes are:
-        - `SInt(8.W)` for a signed 8-bit integer
-        - `UInt(32.W)` for an unsigned 32-bit integer
-        - `Float(8, 24)` for a single-precision IEEE floating point number
-    - If your datatype is a floating-point number, then you might also want to change the ``pe_latency`` parameter, which specifies how many shift registers to add inside the PEs.
-This might be necessary if your datatype cannot complete a multiply-accumulate operation within a single cycle.
+* 유형 매개변수(``inputType``, ``outputType``, ``accType``): Gemmini 가속기의 다양한 부분을 통과하는 데이터 유형을 결정합니다.
+예를 들어, ``inputType``은 8비트 고정 소수점 숫자일 수 있으며, ``accType``은 행렬 곱셈에서 부분 합계를 결정하는 32비트 정수일 수 있습니다.
+``outputType``은 처리 요소(PE) 간에 전달되는 데이터 유형만 결정합니다. 예를 들어, 8비트 곱셈은 16비트 결과를 생성하며, 이 결과는 시스톨릭 배열의 PE 간에 공유되어야 합니다.
+    - 가능한 데이터 유형의 예는 다음과 같습니다:
+        - `SInt(8.W)`: 부호 있는 8비트 정수
+        - `UInt(32.W)`: 부호 없는 32비트 정수
+        - `Float(8, 24)`: 단정밀도 IEEE 부동 소수점 수
+    - 데이터 유형이 부동 소수점 숫자인 경우, PE 내에 추가할 시프트 레지스터 수를 지정하는 ``pe_latency`` 매개변수를 변경해야 할 수도 있습니다.
+이것은 데이터 유형이 하나의 사이클 내에서 곱셈-누산 작업을 완료할 수 없는 경우에 필요할 수 있습니다.
 
-* Access-execute queue parameters (``ld_queue_length``, ``st_queue_length``, ``ex_queue_length``, ``rob_entries``): To implement access-execute decoupling, a Gemmini accelerator has a load instruction queue, a store instruction queue, and an execute instruction queue. The relative sizes of these queue determine the level of access-execute decoupling. Gemmini also implements a reorder buffer (ROB) - the number of entries in the ROB determines possible dependency management limitations.
+* Access-execute 큐 매개변수(``ld_queue_length``, ``st_queue_length``, ``ex_queue_length``, ``rob_entries``): Access-execute 디커플링을 구현하기 위해 Gemmini 가속기는 로드 명령 큐, 스토어 명령 큐, 실행 명령 큐를 갖추고 있습니다. 이 큐의 상대적인 크기는 access-execute 디커플링의 수준을 결정합니다. Gemmini는 또한 리오더 버퍼(ROB)를 구현하며, ROB의 항목 수는 가능한 종속성 관리 제한을 결정합니다.
 
-* DMA parameters (``dma_maxbytes``, ``dma_buswidth``, ``mem_pipeline``): Gemmini implements a DMA to move data from main memory to the Gemmini scratchpad, and from the Gemmini accumulators to main memory. The size of these DMA transactions is determined by the DMA parameters. These DMA parameters are tightly coupled with Rocket Chip SoC system parameters: in particular ``dma_buswidth`` is associated with the ``SystemBusKey`` ``beatBytes`` parameter, and ``dma_maxbytes`` is associated with ``cacheblockbytes`` Rocket Chip parameters.
+* DMA 매개변수(``dma_maxbytes``, ``dma_buswidth``, ``mem_pipeline``): Gemmini는 메인 메모리에서 Gemmini 스크래치패드로, Gemmini 누산기에서 메인 메모리로 데이터를 이동하기 위해 DMA를 구현합니다. 이 DMA 트랜잭션의 크기는 DMA 매개변수에 의해 결정됩니다. 이 DMA 매개변수는 Rocket Chip SoC 시스템 매개변수와 밀접하게 연결되어 있습니다. 특히 ``dma_buswidth``는 ``SystemBusKey`` ``beatBytes`` 매개변수와 관련이 있으며, ``dma_maxbytes``는 ``cacheblockbytes`` Rocket Chip 매개변수와 관련이 있습니다.
 
-There are also optional features, which can be either enabled or left out of Gemmini at elaboration-time.
-For example:
+또한 설명 시점에 Gemmini에서 활성화하거나 제외할 수 있는 선택적 기능도 있습니다.
+예를 들어:
 
-* Scaling during "move-in" operations (``mvin_scale_args``, ``mvin_scale_acc_args``):
-When data is being moved in from DRAM or main memory into Gemmini's local scratchpad memory, it can optionally be multiplied by a scaling factor.
-These parameters specify what the datatype of the scaling factor is, and how the scaling is actually done.
-If these are set to ``None``, then this optional feature will be disabled at elaboration time.
-If both the scratchpad inputs are accumulator inputs are to be scaled in the same say, then the ``mvin_scale_shared`` parameter can be set to ``true`` so that the multipliers and functional units are shared.
+* "이동 시" 스케일링(``mvin_scale_args``, ``mvin_scale_acc_args``):
+DRAM 또는 메인 메모리에서 Gemmini의 로컬 스크래치패드 메모리로 데이터가 이동될 때 선택적으로 스케일링 인자를 곱할 수 있습니다.
+이 매개변수는 스케일링 인자의 데이터 유형이 무엇인지, 스케일링이 실제로 어떻게 이루어지는지를 지정합니다.
+이 값들이 ``None``으로 설정된 경우, 이 선택적 기능은 설명 시점에 비활성화됩니다.
+스크래치패드 입력과 누산기 입력이 동일한 방식으로 스케일링되어야 하는 경우, ``mvin_scale_shared`` 매개변수를 ``true``로 설정하여 곱셈기와 기능 유닛이 공유되도록 할 수 있습니다.
+
 
 Major Components
 ----------------
 
-This subsection is aimed towards those who wish to start hacking on Gemmini's RTL.
-Here, we briefly describe Gemmini's main hardware components, and how they fit together.
-If you have no interest in changing Gemmini's hardware (besides just changing configuration parameters), then feel free to skip this section.
+이 하위 섹션은 Gemmini의 RTL을 해킹하려는 사람들을 위한 것입니다.
+여기에서는 Gemmini의 주요 하드웨어 구성 요소와 이들이 어떻게 결합되는지 간략히 설명합니다.
+Gemmini의 하드웨어를 변경할 계획이 없다면(구성 매개변수를 변경하는 것 외에는), 이 섹션을 건너뛰어도 좋습니다.
 
 ### Decoupled Access/Execute
 
-Gemmini is a decoupled access/execute architecture, which means that "memory-access" and "execute" instructions happen concurrently, in different regions of the hardware.
-We divide the hardware broadly into three "controllers": one for "execute" instructions, another for "load" instructions, and a third for "store" instructions.
-Each of these controllers consume direct ISA commands from the programmer, decode this commands, and execute them, while sharing access to the scratchpad and acccumulator SRAMs.
+Gemmini는 디커플링된 액세스/실행 아키텍처로, "메모리 액세스"와 "실행" 명령이 하드웨어의 다른 영역에서 동시에 실행됩니다.
+우리는 하드웨어를 크게 세 가지 "컨트롤러"로 나눕니다: "실행" 명령을 담당하는 컨트롤러, "로드" 명령을 담당하는 컨트롤러, 그리고 "스토어" 명령을 담당하는 컨트롤러입니다.
+각 컨트롤러는 프로그래머로부터 직접 ISA 명령을 수신하고, 이를 디코딩하여 실행하며, 스크래치패드 및 누산기 SRAM에 대한 접근을 공유합니다.
 
-* `ExecuteController`: This module is responsible for executing "execute"-type ISA commands, such as matrix multiplications.
-It includes a systolic array for dot-products, and a transposer.
+* `ExecuteController`: 이 모듈은 행렬 곱셈과 같은 "실행" 유형의 ISA 명령을 실행하는 역할을 합니다.
+이 모듈에는 도트 프로덕트(dots product)를 위한 시스톨릭 배열과 전치기(Transposer)가 포함됩니다.
 
-* `LoadController`: This module is responsible for all instructions that move data from main memory into Gemmini's private scratchpad or accumulator.
+* `LoadController`: 이 모듈은 메인 메모리에서 Gemmini의 개인 스크래치패드나 누산기로 데이터를 이동하는 모든 명령을 담당합니다.
 
-* `StoreController`: This module is responsible for all instructions that move data from Gemmini's private SRAMs into main memory.
-This module is also responsible for "max-pooling" instructions, because Gemmini performs pooling when moving unpooled data from the private SRAMs into main memory.
+* `StoreController`: 이 모듈은 Gemmini의 개인 SRAM에서 메인 메모리로 데이터를 이동하는 모든 명령을 담당합니다.
+이 모듈은 또한 "맥스 풀링(max-pooling)" 명령을 담당합니다. 왜냐하면 Gemmini는 미포된 데이터를 개인 SRAM에서 메인 메모리로 이동할 때 풀링을 수행하기 때문입니다.
 
 ### Scratchpad and Accumulator
 
-Gemmini stores inputs and outputs for the systolic array in a set of private SRAMs, which we call the "scratchpad" and the "accumulator".
-Typically, inputs are stored in the scratchpad, while partial sums and final results are stored in the the accumulator.
+Gemmini는 시스톨릭 배열의 입력 및 출력을 저장하기 위해 "스크래치패드"와 "누산기"라고 불리는 일련의 개인 SRAM을 사용합니다.
+일반적으로 입력은 스크래치패드에 저장되며, 부분 합계 및 최종 결과는 누산기에 저장됩니다.
 
-The scratchpad and accumulator are both instantiated within `Scratchpad.scala`.
-The scratchpad banks are implemented by the `ScratchpadBank` module, and the accumulator banks are implemented by the `AccumulatorMem` module.
+스크래치패드와 누산기는 모두 `Scratchpad.scala`에 인스턴스화됩니다.
+스크래치패드 뱅크는 `ScratchpadBank` 모듈에 의해 구현되며, 누산기 뱅크는 `AccumulatorMem` 모듈에 의해 구현됩니다.
 
-Each row of the scratchpad and accumulator SRAMs is `DIM` "elements" wide, where `DIM` is the number of PEs along the width of the systolic array.
-Each "element" represents a single scalar value that Gemmini operates upon.
+스크래치패드와 누산기 SRAM의 각 행은 시스톨릭 배열의 너비를 따라 `DIM` "요소"로 구성됩니다.
+각 "요소"는 Gemmini가 작동하는 단일 스칼라 값을 나타냅니다.
 
-Each "element" in the scratchpad is of type `inputType` (which, in the default config, is an 8-bit integer).
-Each "element" in the acccumulator is of type `accType` (which, in the default config, is a 32-bit integer).
+스크래치패드의 각 "요소"는 `inputType` 유형입니다(기본 설정에서는 8비트 정수).
+누산기의 각 "요소"는 `accType` 유형입니다(기본 설정에서는 32비트 정수).
 
-So, for example, in the default config, which has a 16x16 systolic array, the scratchpad banks have a row-width of `16*bits(inputType)=128` bits, and the accumulatorr banks have a row-width of `16*bits(accType)=512` bits.
+예를 들어, 기본 설정에서 16x16 시스톨릭 배열을 사용하는 경우, 스크래치패드 뱅크의 행 너비는 `16*bits(inputType)=128` 비트이고, 누산기 뱅크의 행 너비는 `16*bits(accType)=512` 비트입니다.
 
-Both inputs and outputs to the scratchpad must be of type `inputType`. 
+스크래치패드의 입력과 출력은 모두 `inputType`이어야 합니다.
 
-Both inputs and outputs from the accumulator can be either of type `accType` _or_ `inputType`.
-If `inputType` values are input to the accumulator, they will be cast up to `accType`.
-If `inputType` values are output from the accumulator, they will first be "scaled" down to be of type `inputType`.
-The exact "scaling" function can be configured as the as the user wishes, but in the default config, the scaling function is a simple multiplication by a `float32` value that casts an `int32` down to an `int8`.
+누산기의 입력과 출력은 `accType` 또는 `inputType`일 수 있습니다.
+`inputType` 값이 누산기로 입력되면 `accType`으로 변환됩니다.
+`inputType` 값이 누산기에서 출력되면 먼저 `inputType` 값으로 "스케일링"됩니다.
+기본 설정에서는 스케일링 함수가 단순히 `float32` 값을 곱하여 `int32`를 `int8`로 변환하는 함수로 구성됩니다.
 
-The scratchpad banks are very simple, comprising little more than an SRAM and a queue.
+스크래치패드 뱅크는 매우 간단하여 SRAM과 큐로만 구성됩니다.
 
-The accumulator banks are a bit more complex: in addition to the underlying SRAM, they also include a set of adders to support in-place accumulations.
-In addition, they have a set of "scalers" (described above), and activation function units.
-The scaling and activation functions are applied when the programmer wishes to transform `accType` values down to `inputType` values while reading data out of the accumulator.
-This is typically done to transform the partial-sum outputs of one layer into the low-bitwidth quantized inputs of the next layer. 
+누산기 뱅크는 좀 더 복잡합니다. 기본 SRAM 외에도, 이들은 인플레이스 누산을 지원하기 위한 일련의 더하기 장치들을 포함합니다.
+또한 스케일러(앞서 설명한 대로)와 활성화 함수 유닛도 포함합니다.
+스케일링 및 활성화 함수는 프로그래머가 누산기에서 데이터를 읽어올 때 `accType` 값을 `inputType` 값으로 변환하기를 원할 때 적용됩니다.
+이는 일반적으로 한 레이어의 부분 합계 출력을 다음 레이어의 낮은 비트 폭의 양자화된 입력으로 변환하기 위해 수행됩니다.
 
 ### Systolic Array and Transposer
 
-`MeshWithDelays`, which is instantiated within the `ExecuteController`, contains the systolic array (`Mesh`), a transposer (`Transposer`), and a set of delay registers which shift the inputs to the systolic array.
-The `MeshWithDelays` module takes in three matrices one row at a time per cycle (`A`, `B`, and `D`), and outputs the result `C = A * B + D` one row at a time per cycle.
+`MeshWithDelays`는 `ExecuteController` 내에서 인스턴스화되며, 시스톨릭 배열(`Mesh`), 전치기(`Transposer`), 그리고 시스톨릭 배열에 입력을 지연시키는 일련의 지연 레지스터로 구성됩니다.
+`MeshWithDelays` 모듈은 한 번에 하나의 행씩 세 개의 행렬(`A`, `B`, 및 `D`)을 받아들이고, 한 번에 하나의 행씩 결과 `C = A * B + D`를 출력합니다.
 
-In the weight-stationary mode, the `B` values are "preloaded" into the systolic array, and `A` and `D` values are fed through.
-In the output-stationary mode, the `D` values are "preloaded" into the systolic array, and `A` and `B` values are fed through.
+weight-stationary 모드에서는 `B` 값이 시스톨릭 배열에 "사전 로드"되고, `A`와 `D` 값이 통과됩니다.
+output-stationary 모드에서는 `D` 값이 시스톨릭 배열에 "사전 로드"되고, `A`와 `B` 값이 통과됩니다.
 
-`A`, `B`, and `D` are all of type `inputType`, while `C` is of type `outputType`.
-If the programmer wishes to write `C` into the scratchpad, then `C` is cast down to `inputType`.
-However, if the programmer instead wishes to write `C` into the scratchpad, then `C` is cast up to `accType`.
+`A`, `B`, 및 `D`는 모두 `inputType` 유형이며, `C`는 `outputType` 유형입니다.
+프로그래머가 `C`를 스크래치패드에 기록하려면, `C`는 `inputType`으로 변환됩니다.
+그러나 프로그래머가 `C`를 누산기에 기록하려는 경우, `C`는 `accType`으로 변환됩니다.
 
-Note that in the weight-stationary mode, an `inputType` D usually has insufficient bitwidth to accurately represent partial sums.
-Therefore, in the weight-stationary mode, `D` is usually just the 0-matrix, while the `accType` accumulator SRAMs are used to accumulate partial sum outputs of the systolic array instead.
+weight-stationary 모드에서는 `inputType` D가 부분 합계를 정확하게 나타내기에 비트 폭이 부족한 경우가 많습니다.
+따라서 weight-stationary 모드에서는 `D`가 보통 0 행렬이고, 누산기 SRAM이 대신 시스톨릭 배열의 부분 합계 출력을 누적하는 데 사용됩니다.
 
-The inputs (`A`, `B`, and `D`) must be delayed with shift-registers so that each input from one matrix reaches the correct PE at exactly the right time to be multiplied-and-accumulated with the correct input from another matrix.
-The diagram below shows an example of a 2x2 output-stationary matmul (ignoring `D`), with the appropriate delay registers at the inputs and outputs of the systolic array:
+입력(`A`, `B`, 및 `D`)은 행렬의 각 입력이 정확한 시간에 올바른 PE에 도달하여 다른 행렬의 올바른 입력과 곱셈 및 누산되도록 지연 레지스터로 지연됩니다.
+아래 다이어그램은 2x2 output-stationary 행렬 곱셈의 예(단, `D`는 제외)를 지연 레지스터와 함께 보여줍니다:
 
-![Systolic array with delay registers](./img/delay-registers.png)
+![지연 레지스터가 있는 시스톨릭 배열](./img/delay-registers.png)
 
-The systolic array itself (implemented in `Mesh.scala`), is composed of a two-tier hierarchy of `Tiles` and `PEs`.
-The `Mesh` is composed of a set of `Tiles`, separated by pipeline registers.
-Every `Tile` is composed of a combinational set of `PEs`, where each PE performs a single matmul operation, with either the weight-stationary, or output-stationary dataflow.
+시스톨릭 배열 자체는 `Mesh.scala`에 구현되어 있으며, 타일(`Tiles`)과 PE(`PEs`)의 2단계 계층 구조로 구성됩니다.
+`Mesh`는 타일 세트로 구성되며, 각 타일 사이에 파이프라인 레지스터가 있습니다.
+각 `Tile`은 조합 논리적 PE 세트로 구성되며, 각 PE는 weight-stationary 또는 output-stationary 데이터 흐름으로 단일 행렬 곱셈 작업을 수행합니다.
 
-![Systolic array](./img/gemmini-systolic-array.png)
+![시스톨릭 배열](./img/gemmini-systolic-array.png)
 
-The `MeshWithDelays` module also includes a number of counters and configuration registers.
-`MeshWithDelays` assumes that every matmul operation will be exactly of size `DIM x DIM`, where `DIM` is the number of PEs across the width of the systolic array itself (16 in the default config).
-These counters count up to `DIM`, and then update the configuration registers from the inputs to `MeshWithDelays`.
-These configuration registers control which of `A` and `B` are to be transposed before being fed into the systolic array.
-They also control whether the preloaded values in the systolic array are to be maintained for the next matmul, or whether they are to be overwritten and replaced.
+`MeshWithDelays` 모듈에는 카운터와 구성 레지스터도 포함됩니다.
+`MeshWithDelays`는 각 행렬 곱셈 작업이 정확히 `DIM x DIM` 크기일 것으로 가정합니다. 여기서 `DIM`은 시스톨릭 배열의 너비입니다(기본 설정에서는 16).
+이 카운터는 `DIM`까지 계산한 후 입력에서 `MeshWithDelays`로 구성 레지스터를 업데이트합니다.
+이 구성 레지스터는 시스톨릭 배열에 입력하기 전에 `A`와 `B` 중 어느 것이 전치될지를 제어합니다.
+또한, 시스톨릭 배열에 사전 로드된 값이 다음 행렬 곱셈을 위해 유지될지 아니면 덮어쓰고 교체될지를 제어합니다.
 
-The transposer itself is implemented as a very simple systolic array, which transports inputs from left-to-right for `DIM` cycles, and then down-to-up for another `DIM` cycles.
-This is illustrated in the diagram below:
+전치기 자체는 매우 간단한 시스톨릭 배열로 구현되며, 왼쪽에서 오른쪽으로 `DIM` 사이클 동안 입력을 전송한 후, 다시 위에서 아래로 `DIM` 사이클 동안 전송합니다.
+이것은 아래 다이어그램에 나와 있습니다:
 
-![Transposer](./img/transposer.png)
+![전치기](./img/transposer.png)
 
-Note that for output-stationary matmuls, the transposer is used even when the programmer does not request a transposition.
-This is because the systolic array expects inputs from the same row of `A` to enter the same PE in the output-stationary mode, but all values in a single row of `A` are stored within the same scratchpad SRAM row.
-Therefore, the rows have to be transposed after being read out of the scratchpad, so that elements on the same row can be fed into the same PE one-after-another, rather than being fed into adjacent PEs.
+output-stationary 행렬 곱셈의 경우, 프로그래머가 전치를 요청하지 않더라도 전치기가 사용된다는 점에 유의하십시오.
+이는 시스톨릭 배열이 output-stationary 모드에서 `A`의 동일한 행의 입력을 동일한 PE에 입력하는 것을 예상하기 때문입니다. 그러나 `A`의 단일 행의 모든 값이 동일한 스크래치패드 SRAM 행에 저장됩니다.
+따라서 행렬 요소를 동일한 행에 있는 요소들이 연속적으로 PE에 입력되도록 스크래치패드에서 읽은 후 전치해야 합니다.
 
 ### DMA
 
-Gemmini includes two DMAs, one for reading data from main memory into Gemmini's private SRAMs, and another for moving data from Gemmini's private SRAMs into main memory.
-Both these modules are implemented in `DMA.scala`.
+Gemmini에는 메인 메모리에서 Gemmini의 개인 SRAM으로 데이터를 읽어오는 DMA와, Gemmini의 개인 SRAM에서 메인 메모리로 데이터를 이동하는 DMA가 포함되어 있습니다.
+이 모듈들은 모두 `DMA.scala`에 구현되어 있습니다.
 
-Both DMAs operate on virtual addresses, and share access to a TLB to translate these into physical main memory addresses.
-If the TLB misses, it transparently falls back to a PTW that is shared with Gemmini's host CPU.
+두 DMA는 가상 주소에서 작동하며, 이를 물리적 메인 메모리 주소로 변환하기 위해 TLB에 접근합니다.
+TLB에서 미스가 발생하면, Gemmini의 호스트 CPU와 공유되는 PTW로 투명하게 대체됩니다.
 
-After physical addresses are obtained from Gemmini's private TLB, the DMAs break large memory requests up into smaller [TileLink](https://sifive.cdn.prismic.io/sifive%2Fcab05224-2df1-4af8-adee-8d9cba3378cd_tilelink-spec-1.8.0.pdf) read and write requests.
-To satisfy the TileLink protocol, each memory request must be aligned to the number of bytes requested from/to main memory, and the size of each memory request (in bytes) must be a power of 2.
-The DMAs generally attempt to minimize the number of TileLink requests as much as possible, even if this requires reading a larger total amount of data from main memory.
-Empirically, we have found that an excessive number TileLink requests can limit performance more than reading a small amount of extra data.
+Gemmini의 개인 TLB에서 물리적 주소를 얻은 후, DMA는 큰 메모리 요청을 더 작은 [TileLink](https://sifive.cdn.prismic.io/sifive%2Fcab05224-2df1-4af8-adee-8d9cba3378cd_tilelink-spec-1.8.0.pdf) 읽기 및 쓰기 요청으로 나눕니다.
+TileLink 프로토콜을 만족시키기 위해, 각 메모리 요청은 메인 메모리에서 요청된/저장된 바이트 수로 정렬되어야 하며, 각 메모리 요청의 크기(바이트 단위)는 2의 거듭제곱이어야 합니다.
+DMA는 일반적으로 가능하면 TileLink 요청의 수를 최소화하려고 합니다. 이는 메인 메모리에서 더 많은 데이터를 읽어야 하더라도 성능을 저하시킬 수 있는 TileLink 요청의 과도한 수를 방지하기 위함입니다.
 
-The DMAWriter, which writes data from private SRAMs to main memory, also includes a set of `>` comparators that are used for max-pooling data during a memory-write operation.
+DMAWriter, 즉 개인 SRAM에서 메인 메모리로 데이터를 쓰는 역할을 하는 모듈에는 메모리 쓰기 작업 중에 데이터에 대한 맥스 풀링을 수행하기 위한 `>` 비교기가 포함되어 있습니다.
 
 ### ROB
 
-Due to Gemmini's decoupled access-execute architecture, instructions in the `LoadController`, `StoreController`, and `ExecuteController` may operate concurrently and out-of-order with respect to instructions in other controllers.
-Gemmini includes an ROB which is meant to detect hazards between instructions in different controllers.
-The instructions in the ROB are only issued to their respective controllers once they have no dependencies on instructions in other controllers.
+Gemmini의 디커플링된 액세스-실행 아키텍처로 인해, `LoadController`, `StoreController`, `ExecuteController`의 명령이 다른 컨트롤러의 명령과 비교하여 동시에 실행되고 순서 없이 처리될 수 있습니다.
+Gemmini는 다른 컨트롤러의 명령 사이의 종속성을 감지하기 위한 리오더 버퍼(ROB)를 포함합니다.
+ROB에 있는 명령은 다른 컨트롤러의 명령에 종속성이 없을 때에만 해당 컨트롤러에 발행됩니다.
 
-Note that instructions that are destined for the same controller are issued in-order.
-The ROB does not check hazards between instructions within the same controller, because each controller is obligated to handle it's own dependencies and hazards internally, assuming that it receives it's own instructions in program-order.
+동일한 컨트롤러에 대상이 된 명령은 순서대로 발행됩니다.
+ROB는 동일한 컨트롤러 내에서 명령 간의 종속성을 검사하지 않습니다. 각 컨트롤러는 프로그램 순서대로 명령을 수신한다는 가정 하에 자체 내부 종속성과 위험을 처리해야 하기 때문입니다.
 
 ### Matmul and Conv Loop Unrollers
 
-Gemmini's systolic array can only operate on matmuls that are up to `DIMxDIM` elements large.
-When performing matmuls and convolutions that are larger than this, programmers must tile their matmuls into a sequence of smaller `DIMxDIM` matmuls.
+Gemmini의 시스톨릭 배열은 최대 `DIMxDIM` 요소의 행렬 곱셈만 수행할 수 있습니다.
+이보다 더 큰 행렬 곱셈과 컨볼루션을 수행할 때는 프로그래머가 자신의 행렬 곱셈을 더 작은 `DIMxDIM` 행렬 곱셈 시퀀스로 타일링해야 합니다.
 
-However, tiling these operations efficiently can be difficult for programmers, due to CPU and loop overheads, and the difficulty of unrolling and pipelining software loops.
+그러나 이러한 연산을 효율적으로 타일링하는 것은 CPU 및 루프 오버헤드와 소프트웨어 루프를 풀어내고 파이프라이닝하는 어려움으로 인해 프로그래머에게 어려울 수 있습니다.
 
-To alleviate this difficulty, Gemmini's ISA includes high-level CISC-type instructions, which automatically tile and unroll large matmuls and convolutions.
-These are implemented in the `LoopMatmul` and `LoopConv` modules.
+이 어려움을 줄이기 위해, Gemmini의 ISA에는 대규모 행렬 곱셈과 컨볼루션을 자동으로 타일링하고 풀어내는 고수준 CISC 유형의 명령이 포함되어 있습니다.
+이들은 `LoopMatmul` 및 `LoopConv` 모듈에 의해 구현됩니다.
 
-These modules are implemented as FSMs, which double-buffer matmul/conv tiles to maximize performance, and which monitor the proportion of load/store/execute instructions in the ROB to maximize overlap between memory accesses and dot-product computations.
-For example, if the ROB is dominated by matmul instructions, without leaving any slots for incoming load instructions, then the FSMs will pause the issuing of matmul instructions to allow more space for concurrent load instructions in Gemmini's datapath.
+이 모듈들은 FSM으로 구현되었으며, 성능을 극대화하기 위해 행렬 곱셈/컨볼루션 타일을 더블 버퍼링하고, 메모리 액세스와 도트 프로덕트 계산 간의 최대 중첩을 위해 ROB의 로드/스토어/실행 명령의 비율을 모니터링합니다.
+예를 들어, ROB이 행렬 곱셈 명령으로 가득 차 있어 들어오는 로드 명령에 슬롯을 남기지 않는 경우, FSM은 Gemmini의 데이터 경로에 있는 동시 로드 명령을 위해 더 많은 공간을 허용하기 위해 행렬 곱셈 명령의 발행을 일시 중지할 것입니다.
 
 Software
 ==========
 
-The Gemmini ISA is specified in the `ISA` section below.
-The ISA includes configuration instructions, data movement instructions (from main memory to/from Gemmini's private memory), and matrix multiplication execution instructions.
+Gemmini ISA는 아래 `ISA` 섹션에서 설명됩니다.
+이 ISA에는 구성 명령, 데이터 이동 명령(메인 메모리에서 Gemmini의 개인 메모리로 이동하거나 그 반대 방향), 및 행렬 곱셈 실행 명령이 포함됩니다.
 
-Since Gemmini instructions are not exposed through the GNU binutils assembler, several C macros are provided in order to construct the instruction encodings to call these instructions.
+Gemmini 명령어는 GNU binutils 어셈블러를 통해 노출되지 않으므로, 이러한 명령어 인코딩을 구성하기 위해 여러 C 매크로가 제공됩니다.
 
-The Gemmini generator includes a C library which wraps the calls to the custom Gemmini instructions into common DNN operators like matmuls, convolutions (with or without pooling), matrix-additions, etc.
-The ``software`` directory of the generator includes the aforementioned library and macros, as well as baremetal tests, and some FireMarshal workloads to run the tests in a Linux environment. In particular, the C library can be found in the ``software/gemmini-rocc-tests/include/gemmini.h`` file.
+Gemmini 생성기는 이러한 사용자 정의 Gemmini 명령 호출을 공통 DNN 연산자(예: 행렬 곱셈, 컨볼루션(풀링 포함 또는 제외), 행렬 덧셈 등)로 감싸는 C 라이브러리를 포함합니다.
+생성기의 ``software`` 디렉토리에는 위에서 언급한 라이브러리 및 매크로, baremetal 테스트, 그리고 Linux 환경에서 테스트를 실행하기 위한 일부 FireMarshal 워크로드가 포함되어 있습니다. 특히 C 라이브러리는 ``software/gemmini-rocc-tests/include/gemmini.h`` 파일에 있습니다.
 
-The Gemmini generator generates a C header file based on the generator parameters. This header files gets compiled together with the C library to tune library performance. The generated header file can be found under ``software/gemmini-rocc-tests/include/gemmini_params.h``
+Gemmini 생성기는 생성기 매개변수를 기반으로 C 헤더 파일을 생성합니다. 이 헤더 파일은 C 라이브러리와 함께 컴파일되어 라이브러리 성능을 조정합니다. 생성된 헤더 파일은 ``software/gemmini-rocc-tests/include/gemmini_params.h``에서 찾을 수 있습니다.
 
-Gemmini can also be used to run ONNX-specified neural-networks through a port of Microsoft's ONNX-Runtime framework. The port is included as the [onnxruntime-riscv](https://github.com/pranav-prakash/onnxruntime-riscv) repository submoduled in the `software` directory.
-To start using ONNX-Runtime, run `git submodule update --init --recursive software/onnxruntime-riscv`, and read the documentation [here](https://github.com/pranav-prakash/onnxruntime-riscv/blob/systolic/systolic_runner/docs).
+Gemmini는 또한 Microsoft의 ONNX-Runtime 프레임워크의 포트를 통해 ONNX에서 지정된 신경망을 실행하는 데 사용할 수 있습니다. 이 포트는 `software` 디렉토리에 서브모듈로 포함된 [onnxruntime-riscv](https://github.com/pranav-prakash/onnxruntime-riscv) 리포지토리에 포함되어 있습니다.
+ONNX-Runtime 사용을 시작하려면 `git submodule update --init --recursive software/onnxruntime-riscv` 명령을 실행하고 [여기](https://github.com/pranav-prakash/onnxruntime-riscv/blob/systolic/systolic_runner/docs)에서 문서를 참조하십시오.
 
 ## Build and Run Gemmini Tests
 
-To build the Gemmini tests:
+Gemmini 테스트를 빌드하려면:
 
 ```shell
 cd software/gemmini-rocc-tests/
 ./build.sh
 ```
 
-Afterwards, the test binaries will be found in `software/gemmini-rocc-tests/build`.
-Binaries whose names end in `-baremetal` are meant to be run in a bare-metal environment, while binaries whose names end in `-linux` are meant to run in a Linux environment.
-You can run the tests either on a cycle-accurate RTL simulator, or on a (much faster) functional ISA simulator called Spike.
+이후, 테스트 바이너리는 `software/gemmini-rocc-tests/build` 디렉토리에 생성됩니다.
+이름이 `-baremetal`로 끝나는 바이너리는 bare-metal 환경에서 실행되도록 설계되었으며, 이름이 `-linux`로 끝나는 바이너리는 Linux 환경에서 실행되도록 설계되었습니다.
+테스트는 사이클 정확도의 RTL 시뮬레이터 또는 (훨씬 더 빠른) 기능적 ISA 시뮬레이터인 Spike에서 실행할 수 있습니다.
 
-We use a special extension of Spike, found [here](https://github.com/ucb-bar/libgemmini), which has support for Gemmini instructions.
-If you are using Chipyard, you can easily build Spike by running `./scripts/build-toolchains.sh riscv-tools` from Chipyard's root directory, then by running `make -C software/libgemmini install` in the Gemmini directory.
-Then, to run the `mvin_mvout` test, which simply moves a matrix into Gemmini's scratchpad before moving it back out into main memory, run the following commands:
+우리는 Gemmini 명령어를 지원하는 특별한 Spike 확장을 사용합니다. [여기](https://github.com/ucb-bar/libgemmini)에서 찾을 수 있습니다. Chipyard를 사용하는 경우, Chipyard의 루트 디렉토리에서 `./scripts/build-toolchains.sh riscv-tools`를 실행한 다음, Gemmini 디렉토리에서 `make -C software/libgemmini install`을 실행하여 Spike를 쉽게 빌드할 수 있습니다.
+그런 다음, Gemmini의 스크래치패드로 행렬을 이동시키고, 다시 메인 메모리로 이동시키는 단순한 테스트인 `mvin_mvout` 테스트를 실행하려면 다음 명령을 실행하십시오:
 
 ```shell
 cd build/bareMetalC
@@ -373,273 +368,277 @@ spike --extension=gemmini mvin_mvout-baremetal
 ```
 
 ## Writing Your Own Gemmini Tests
-`software/gemmini-rocc-tests/bareMetalC/template.c` is a template Gemmini test that you can base your own Gemmini tests off of. To write your own Gemmini test, run:
+
+`software/gemmini-rocc-tests/bareMetalC/template.c`는 Gemmini 테스트를 작성할 때 기반으로 사용할 수 있는 템플릿입니다. 자신의 Gemmini 테스트를 작성하려면 다음을 실행하십시오:
 
 ```shell
 cd software/gemmini-rocc-tests/
 cp bareMetalC/template.c bareMetalC/my_test.c
 ```
 
-Then, add `my_test` to the `tests` list at the top of `bareMetalC/Makefile`. Afterwards, running `./build.sh` will install `my_test-baremetal` in `build/bareMetalC`.
+그런 다음, `bareMetalC/Makefile`의 상단에 있는 `tests` 목록에 `my_test`를 추가하십시오. 이후, `./build.sh`를 실행하면 `build/bareMetalC` 디렉토리에 `my_test-baremetal`이 설치됩니다.
 
 ## DNN Tests
 
-Example DNNs, such as ResNet50, can be found in `software/gemmini-rocc-tests/imagenet` and `software/gemmini-rocc-tests/mlps`.
-These tests are built and run the same way as the other tests described above, but they typically take too long to run in a software simulator like VCS or Verilator.
-We recommend instead that you run these tests through [Firesim](https://fires.im/), an FPGA-accelerated simulation platform, which will reduce your runtime from days to minutes.
+ResNet50과 같은 예제 DNN은 `software/gemmini-rocc-tests/imagenet` 및 `software/gemmini-rocc-tests/mlps`에 있습니다.
+이 테스트들은 위에서 설명한 다른 테스트들과 동일한 방식으로 빌드되고 실행되지만, VCS나 Verilator와 같은 소프트웨어 시뮬레이터에서는 실행 시간이 너무 오래 걸립니다.
+이 테스트들은 대신 [Firesim](https://fires.im/)이라는 FPGA 가속 시뮬레이션 플랫폼을 통해 실행할 것을 권장합니다. 이 플랫폼은 실행 시간을 며칠에서 몇 분으로 단축시켜줍니다.
 
-Note that the DNN tests rely upon our C library of common DNN operators (found in `gemmini.h`).
-They call very few direct Gemmini ISA instructions, and mostly call the wrappers around them found in the C library.
+DNN 테스트는 `gemmini.h`에 있는 공통 DNN 연산자들의 C 라이브러리를 기반으로 합니다.
+이들은 거의 직접적인 Gemmini ISA 명령어 호출을 하지 않으며, 대부분 C 라이브러리에 있는 래퍼를 호출합니다.
 
 # Memory Addressing Scheme
 
-Gemmini's private memory is "row-addressed", where each row is `DIM` elements wide, where `DIM` is the number of PEs across the width of the systolic array (16 in the default config).
-These elements will be of type `inputType` in the scratchpad, and of type `accType` in the accumulator.
+Gemmini의 개인 메모리는 "행 단위 주소 지정" 방식으로, 각 행은 시스톨릭 배열의 너비인 `DIM` 요소로 구성됩니다. 기본 설정에서는 `DIM`이 16입니다.
+스크래치패드에서는 이러한 요소들이 `inputType` 유형이며, 누산기에서는 `accType` 유형입니다.
 
-Every private Gemmini memory address is 32 bits long.
-The three most signficant bits are reserved, and have special meanings:
-* Bit 31 (the MSB) is 0 if we are addressing the scratchpad, and 1 if we are addressing the accumulator.
-* Bit 30 is ignored if we are addressing the scratchpad, or if we are reading from the accumulator. If, instead, we are writing to the accumulator, then bit 30 is 0 if we want to overwrite the data at that address, and 1 if we want to accumulate on top of the data already at that address.
-* Bit 29 is ignored if we are addressing the scratchpad, or if we are writing to the accumulator. If, instead, we are reading from the accumulator, then bit 29 is 0 if we want to read scaled-down `inputType` data from the accumulator, and 1 if we want to read `accType` data from the accumulator.
-    - If bit 29 is 1 for an accumulator read address, then we do not apply activation functions or scaling to the output of the accumulator.
+Gemmini의 모든 개인 메모리 주소는 32비트 길이를 가지며, 가장 상위 3비트는 예약되어 있으며 특별한 의미를 가집니다:
+* 비트 31(MSB)은 스크래치패드를 주소 지정하는 경우 0, 누산기를 주소 지정하는 경우 1입니다.
+* 비트 30은 스크래치패드를 주소 지정하는 경우 또는 누산기에서 읽어오는 경우 무시됩니다. 반대로 누산기에 쓰는 경우, 비트 30이 0이면 해당 주소의 데이터를 덮어쓰고, 1이면 해당 주소의 데이터에 누적합니다.
+* 비트 29는 스크래치패드를 주소 지정하는 경우 또는 누산기에 쓰는 경우 무시됩니다. 반대로 누산기에서 읽어오는 경우, 비트 29가 0이면 누산기에서 스케일 다운된 `inputType` 데이터를 읽어오고, 1이면 `accType` 데이터를 읽어옵니다.
+    - 비트 29가 1인 경우, 누산기의 출력에 활성화 함수나 스케일링이 적용되지 않습니다.
 
-The memory addressing scheme for a Gemmini config with a 2x2 systolic array is illustrated below:
+다음 그림은 2x2 시스톨릭 배열을 사용하는 Gemmini 설정의 메모리 주소 지정 방식을 보여줍니다:
 
-![Gemmini's memory addressing scheme](./img/memory-addressing.png)
+![Gemmini의 메모리 주소 지정 방식](./img/memory-addressing.png)
 
-Gemmini accesses main memory addresses (which are also visible to the CPU) through their software-visible virtual addresses.
-Physical translation addresses are handled by Gemmini, transparently to the programmer.
+Gemmini는 메인 메모리 주소(이는 CPU에서도 볼 수 있는 주소)에 소프트웨어에서 볼 수 있는 가상 주소를 통해 접근합니다.
+물리 주소 변환은 Gemmini에서 투명하게 처리됩니다.
 
 # ISA
 
-This section describes Gemmini's assembly-level ISA which is made up of custom RISC-V instructions.
+이 섹션에서는 Gemmini의 어셈블리 레벨 ISA, 즉 RISC-V 사용자 정의 명령어로 구성된 ISA에 대해 설명합니다.
 
 ## Data Movement
-### `mvin` Move Data From Main Memory to Scratchpad
-**Format:** `mvin rs1, rs2`
-- `rs1` = virtual DRAM address (byte addressed) to load into scratchpad
-- `rs2[31:0]` = local scratchpad or accumulator address
-- `rs2[47:32]` = number of columns to load in
-- `rs2[63:48]` = number of rows to load in. Must be less than or equal to `DIM`.
+### `mvin` 메인 메모리에서 스크래치패드로 데이터 이동
+**형식:** `mvin rs1, rs2`
+- `rs1` = 스크래치패드로 로드할 가상 DRAM 주소(바이트 주소)
+- `rs2[31:0]` = 로컬 스크래치패드 또는 누산기 주소
+- `rs2[47:32]` = 로드할 열의 수
+- `rs2[63:48]` = 로드할 행의 수. `DIM`보다 작거나 같아야 합니다.
 - `funct` = 2
 
-**Action:** Scratchpad[rs2] <= DRAM[Translate[rs1]]
-- Loads a 2D matrix from main memory into Gemmini's private memory.
-- Load is sequential from the rs1/rs2 base addresses.
-- Main memory stride must be set by the `config_mvin` command.
-- If the number of columns we load in are greater than `DIM`, then multiple submatrices will be moved in.
-The private-memory stride between these submatrices is set by the `config_mvin` command.
+**동작:** Scratchpad[rs2] <= DRAM[Translate[rs1]]
+- 메인 메모리에서 Gemmini의 개인 메모리로 2D 행렬을 로드합니다.
+- 로드는 rs1/rs2 기본 주소에서 순차적으로 이루어집니다.
+- 메인 메모리 스트라이드는 `config_mvin` 명령어로 설정해야 합니다.
+- 로드할 열의 수가 `DIM`보다 크면 여러 서브매트릭스가 이동됩니다.
+이 서브매트릭스 간의 개인 메모리 스트라이드는 `config_mvin` 명령어로 설정됩니다.
 
-The figure below illustrates how the `mvin` command works:
+다음 그림은 `mvin` 명령어의 동작 방식을 보여줍니다:
 
-![Gemmini's mvin command](./img/mvin.png)
+![Gemmini의 mvin 명령어](./img/mvin.png)
 
-In addition, the figure below illustrates the special case where the number of columns moved-in is greater than `DIM`:
+추가로, 다음 그림은 로드할 열의 수가 `DIM`보다 클 때의 특수 사례를 보여줍니다:
 
-![Gemmini's mvin command with many cols](./img/block-mvin.png)
+![여러 열을 가진 Gemmini의 mvin 명령어](./img/block-mvin.png)
 
-**Notes:**
-* There are actually **three** `mvin` instructions in Gemmini: `mvin`, `mvin2`, and `mvin3`.
-`mvin2` and `mvin3` are completely identical to `mvin`, except that they have their own independent set of configuration registers.
-When calling `config_mvin` (described below), the programmer can choose which `mvin` instruction they want to configure.
-* The reason we have three `mvin` instructions is so that the programmer can overlap loads for A, B, and D matrices (for a `A*B+D` matmul), where A, B, and D may all have different main-memory-strides. 
+**참고:**
+* Gemmini에는 실제로 **세 가지** `mvin` 명령어가 있습니다: `mvin`, `mvin2`, 및 `mvin3`.
+`mvin2`와 `mvin3`는 `mvin`과 완전히 동일하지만, 각각 독립적인 설정 레지스터 세트를 가지고 있습니다.
+`config_mvin`(아래에 설명됨)을 호출할 때, 프로그래머는 설정하려는 `mvin` 명령어를 선택할 수 있습니다.
+* 세 가지 `mvin` 명령어가 있는 이유는 프로그래머가 A, B, 및 D 행렬의 로드를 중첩할 수 있도록 하기 위함입니다(예를 들어, `A*B+D` 행렬 곱셈의 경우, A, B, D는 각각 다른 메인 메모리 스트라이드를 가질 수 있습니다).
 
-### `mvout` Move Data from Scratchpad to L2/DRAM
-**Format:** `mvout rs1, rs2`
-- `rs1` = virtual DRAM address (byte addressed) to write to from scratchpad
-- `rs2[31:0]` = local scratchpad address
-- `rs2[47:32]` = number of columns to store
-- `rs2[63:48]` = number of rows to store
+### `mvout` 스크래치패드에서 L2/DRAM으로 데이터 이동
+**형식:** `mvout rs1, rs2`
+- `rs1` = 스크래치패드에서 메인 메모리로 쓰기 위한 가상 DRAM 주소(바이트 주소)
+- `rs2[31:0]` = 로컬 스크래치패드 주소
+- `rs2[47:32]` = 저장할 열의 수
+- `rs2[63:48]` = 저장할 행의 수
 - `funct` = 3
 
-**Action:** DRAM[Translate[rs1]] <= Scratchpad[rs2]
-- Stores a 2D matrix from the scratchpad to main-memory
-- Store is sequential from the rs1/rs2 base addresses. Stride must be set by the `config_mvout` command
+**동작:** DRAM[Translate[rs1]] <= Scratchpad[rs2]
+- 스크래치패드에서 메인 메모리로 2D 행렬을 저장합니다.
+- 저장은 rs1/rs2 기본 주소에서 순차적으로 이루어집니다. 스트라이드는 `config_mvout` 명령어로 설정해야 합니다.
 
 ## Configuration
-### `config_ex` configures the Execute pipeline
-**Format:** `config_ex rs1 rs2`
-- `rs1[1:0]` must be `00`
-- `rs1[2]` determines if output (0) or weight (1) stationary
-- `rs1[3]` = activation function: either relu (1) or no activation function (0)
-- `rs1[8]` = should A be transposed?
-- `rs1[9]` = should B be transposed?
-- `rs1[31:16]` = the stride (in scratchpad addresses) by which the rows of A are fed into the systolic array.
-"A" in this context refers to the left-hand matrix A in the matmul represented by A * B = C.
-If this stride is 1, then we feed consecutive rows in the scratchpad, starting from the starting address of A, into the systolic array as the A matrix.
-If the stride is 2, then we feed every other row into the systolic array instead.
-- `rs1[63:32]` = the scalar value by which we scale the `accType` output of the accumulator down to `inputType` values when reading from the accumulator.
-    - In the default config, `rs1[63:32]` is of type `float32`
-- `rs2[31:0]` = the number of bits by which the accumulated result of a matmul is right-shifted when leaving the systolic array
-    - This parameter is only relevant in output-stationary mode, when partial sums must be accumulated within the systolic array itself, and scaled-down when leaving the systolic array and being written into the scratchpad.
+### `config_ex` 실행 파이프라인 구성
+**형식:** `config_ex rs1 rs2`
+- `rs1[1:0]`은 `00`이어야 합니다.
+- `rs1[2]`는 출력(0) 또는 가중치(1) 고정 여부를 결정합니다.
+- `rs1[3]` = 활성화 함수: relu(1) 또는 활성화 함수 없음(0)
+- `rs1[8]` = A를 전치할지 여부
+- `rs1[9]` = B를 전치할지 여부
+- `rs1[31:16]` = 시스톨릭 배열에 행렬 A의 행을 공급하는 동안 사용하는 스크래치패드의 행 간 간격.
+여기서 "A"는 행렬 곱셈 A * B = C에서 왼쪽 행렬 A를 나타냅니다.
+이 간격이 1이면, 스크래치패드에서 연속적인 행이 시스톨릭 배열에 공급됩니다.
+간격이 2이면, 시스톨릭 배열에 공급되는 행은 하나씩 건너뜁니다.
+- `rs1[63:32]` = 누산기의 `accType` 출력을 `inputType` 값으로 축소하는 데 사용하는 스칼라 값.
+    - 기본 설정에서는 `rs1[63:32]`가 `float32` 유형입니다.
+- `rs2[31:0]` = 시스톨릭 배열을 떠날 때 행렬 곱셈 결과를 우측으로 시프트할 비트 수
+    - 이 매개변수는 출력 고정 모드에서만 관련이 있으며, 시스톨릭 배열 내에서 부분 합계를 누적하고 스크래치패드에 기록할 때 축소해야 합니다.
 - `funct` = 0
 
-**Action:** mode <= rs1(2); shift <= rs2; A_stride <= rs1[31:16]
+**동작:** 모드 <= rs1(2); 시프트 <= rs2; A_stride <= rs1[31:16]
 
-**Notes:**
-- As of now, certain combinations of transpose options cannot be performed unless the right dataflow is chosen.
-This limitation may be lifted in the future.
+**참고사항:**
+- 현재로서는 특정 전치 옵션의 조합을 올바른 데이터 흐름을 선택하지 않으면 수행할 수 없습니다.
+이 제한은 나중에 해제될 수 있습니다.
 
-| Dataflow | Transpose A | Transpose B | Permitted? |
+| 데이터 흐름 | 전치 A | 전치 B | 허용 여부 |
 | :---: | :---: | :---: | :---: | 
-| OS | No | No | Yes |
-| OS | No | Yes | No |
-| OS | Yes | No | Yes |
-| OS | Yes | Yes | Yes |
-| WS | No | No | Yes |
-| WS | No | Yes | Yes |
-| WS | Yes | No | Yes |
-| WS | Yes | Yes | No |
+| OS | 아니오 | 아니오 | 예 |
+| OS | 아니오 | 예 | 아니오 |
+| OS | 예 | 아니오 | 예 |
+| OS | 예 | 예 | 예 |
+| WS | 아니오 | 아니오 | 예 |
+| WS | 아니오 | 예 | 예 |
+| WS | 예 | 아니오 | 예 |
+| WS | 예 | 예 | 아니오 |
 
-### `config_mvin` configures the Load pipeline
-**Format:** `config_mvin rs1 rs2`
-- `rs1[1:0]` must be `01`
-- `rs1[2]` is 0 if `mvin`s to the accumulator are of type `accType`, and 1 if they are `inputType`
-- `rs1[4:3]` is 0 if the stride is being set for `mvin`, 1 if the stride is being set for `mvin2`, and 2 if the stride is being set for `mvin3`
-- `rs1[31:16]` is the scratchpad-memory stride (also called the "private-memory stride" above)
-- `rs1[63:32]` is the "scale" by which to multiply data as it's being moved in to the scratchpad. This is ignored if Gemmini isn't configured to have the ability to scale values during `mvin`s.
-- `rs2` is the main-memory stride in bytes
+### `config_mvin` 로드 파이프라인 구성
+**형식:** `config_mvin rs1 rs2`
+- `rs1[1:0]`은 `01`이어야 합니다.
+- `rs1[2]`는 `mvin`이 누산기 유형 `accType`인지, 입력 유형 `inputType`인지 결정합니다.
+- `rs1[4:3]`은 0이면 `mvin`의 스트라이드 설정, 1이면 `mvin2`의 스트라이드 설정, 2이면 `mvin3`의 스트라이드 설정을 의미합니다.
+- `rs1[31:16]`은 스크래치패드 메모리 스트라이드(위에서 말한 "개인 메모리 스트라이드")
+- `rs1[63:32]`은 스크래치패드로 이동할 때 데이터에 곱할 스케일입니다. Gemmini가 `mvin` 동안 값을 스케일링할 수 있도록 구성되지 않은 경우 이 값은 무시됩니다.
+- `rs2`는 메인 메모리 스트라이드(바이트 단위)
 - `funct` = 0
 
-**Action:** stride <= rs2; scale <= rs1[63:32]
+**동작:** 스트라이드 <= rs2; 스케일 <= rs1[63:32]
 
-### `config_mvout` configures the Store pipeline
-**Format:** `config_mvout rs1 rs2`
-- `rs1[1:0]` must be `10`
-- `rs2` = the stride in bytes 
+### `config_mvout` 스토어 파이프라인 구성
+**형식:** `config_mvout rs1 rs2`
+- `rs1[1:0]`은 `10`이어야 합니다.
+- `rs2` = 스트라이드(바이트 단위)
 - `funct` = 0
 
-During `mvout` operations, Gemmini can also perform max-pooling.
-**This is an experimental feature, and is subject to change.**
-This feature assumes that data is stored in the scratchpad or accumulator in NHWC format.
-The parameters controlling this feature are:
+`mvout` 작업 동안, Gemmini는 또한 맥스 풀링을 수행할 수 있습니다.
+**이 기능은 실험적이며 변경될 수 있습니다.**
+이 기능은 데이터가 NHWC 형식으로 스크래치패드 또는 누산기에 저장된다고 가정합니다.
+이 기능을 제어하는 매개변수는 다음과 같습니다:
 
-- `rs1[5:4]` = max-pooling stride. If this is 0, then max-pooling is deactivated.
-- `rs1[7:6]` = max-pooling window size
-- `rs1[9:8]` = upper zero-padding
-- `rs1[11:10]` = left zero-padding
-- `rs1[31:24]` = output dimension of image after pooling
-- `rs1[39:32]` = number of pooled rows to output
-- `rs1[47:40]` = number of pooled columns to output
-- `rs1[55:48]` = number of unpooled rows to pool
-- `rs1[63:56]` = number of unpooled columns to pool
+- `rs1[5:4]` = 맥스 풀링 스트라이드. 0인 경우 맥스 풀링이 비활성화됩니다.
+- `rs1[7:6]` = 맥스 풀링 윈도우 크기
+- `rs1[9:8]` = 상단의 제로 패딩
+- `rs1[11:10]` = 좌측의 제로 패딩
+- `rs1[31:24]` = 풀링 후 이미지의 출력 차원
+- `rs1[39:32]` = 출력할 풀링된 행의 수
+- `rs1[47:40]` = 출력할 풀링된 열의 수
+- `rs1[55:48]` = 풀링할 비풀링된 행의 수
+- `rs1[63:56]` = 풀링할 비풀링된 열의 수
 
-**Action:** stride <= rs2; max-pooling parameters <= rs1
+**동작:** 스트라이드 <= rs2; 맥스 풀링 매개변수 <= rs1
 
-### `config_norm` configures normalization commands
-**Format:** `config_norm rs1 rs2`
+### `config_norm` 정규화 명령 구성
+**형식:** `config_norm rs1 rs2`
 
-`config_norm` is an **experimental** command added primarily to support an integer-only variant of BERT called [I-BERT](https://arxiv.org/abs/2101.01321) on Gemmini.
-The command allows users to set scalar constants that are used by I-BERT's GELU, layernorm, and softmax variants.
+`config_norm`은 **실험적** 명령으로, 주로 [I-BERT](https://arxiv.org/abs/2101.01321)라는 정수 전용 BERT 변형을 Gemmini에서 지원하기 위해 추가되었습니다.
+이 명령은 I-BERT의 GELU, 레이어 정규화, 소프트맥스 변형에 사용되는 스칼라 상수를 설정할 수 있습니다.
 
-### `flush` flushes the TLB
-**Format:** `flush rs1`
-- `rs1` = If `rs1[0]` is 1, then the current TLB request is skipped (if it has hit a page-fault and is waiting for an interrupt).
-Otherwise, the current TLB request is repeated.
+### `flush` TLB 플러시
+**형식:** `flush rs1`
+- `rs1` = `rs1[0]`이 1인 경우, 현재 TLB 요청이 스킵됩니다(페이지 폴트가 발생하여 인터럽트를 기다리고 있는 경우). 그렇지 않은 경우, 현재 TLB 요청이 반복됩니다.
 
-**Notes:**
+**참고:**
 
-- This instruction executes _as soon as it is received_ without waiting for other instructions which may be queued up.
-It is the programmer's responsibility to insert fences if necessary.
+- 이 명령은 다른 큐에 대기 중인 명령 없이 _즉시_ 실행됩니다.
+프로그래머가 필요한 경우 펜스를 삽입할 책임이 있습니다.
 
 ## Core Matmul Sequences
-Every single matrix multiply operation is a combination of `matmul.preload` and `matmul.compute` (due to the length of a single instruction, it was split into two instructions).
-`matmul.preload` should precede the `matmul.compute`.
+모든 행렬 곱셈 연산은 `matmul.preload`와 `matmul.compute`의 조합으로 구성됩니다(단일 명령어의 길이가 길기 때문에 두 개의 명령어로 나뉘었습니다).
+`matmul.preload`는 `matmul.compute`보다 먼저 실행되어야 합니다.
 
-Example:
+예제:
 ```
-//// OS matmul example ////
+//// OS 행렬 곱셈 예제 ////
 // rs1 = InputD
 // rs2 = OutputC
 // rs3 = InputA
 // rs4 = InputB
-// matmul InputA InputB OutputC InputD
+// 행렬 곱셈 InputA * InputB + InputD = OutputC
 1. matmul.preload $rs1 $rs2
 2. matmul.compute $rs3 $rs4
 ```
-**Action:** Scratchpad[rs2] <= Scratchpad[rs3] \* Scratchpad[rs4] + Scratchpad[rs1]
+**동작:** Scratchpad[rs2] <= Scratchpad[rs3] \* Scratchpad[rs4] + Scratchpad[rs1]
 
-**Notes on addressing:**
-- For B or D, the address can be replaced with all high bits to input a 0 matrix instead.
-- For A, the address can be replaced with all high bits to input a matrix with undefined garbage data instead.
+**주소 지정에 대한 참고사항:**
+- B 또는 D의 경우, 주소를 모두 높은 비트로 대체하여 0 행렬을 입력할 수 있습니다.
+- A의 경우, 주소를 모두 높은 비트로 대체하여 정의되지 않은 임의의 데이터를 입력할 수 있습니다.
 
 ### Preloading
-**Format:** `matmul.preload rs1, rs2`
-- `rs1[31:0]` = local scratchpad address of D matrix (when output-stationary), or B matrix (when weight-stationary)
-- `rs1[47:32]` = number of columns of D/B matrix
-- `rs1[63:48]` = number of rows of D/B matrix
-- `rs2[31:0]` = local scratchpad address of C matrix.
-If this is set to all high bits, then C will not be written to the scratchpad or accumulator.
-- `rs2[47:32]` = number of columns of C matrix
-- `rs2[63:48]` = number of rows of C matrix
+**형식:** `matmul.preload rs1, rs2`
+- `rs1[31:0]` = D 행렬의 로컬 스크래치패드 주소(output-stationary의 경우) 또는 B 행렬(weight-stationary의 경우)
+- `rs1[47:32]` = D/B 행렬의 열 수
+- `rs1[63:48]` = D/B 행렬의 행 수
+- `rs2[31:0]` = C 행렬의 로컬 스크래치패드 주소.
+이 값이 모두 높은 비트로 설정되면 C가 스크래치패드나 누산기에 기록되지 않습니다.
+- `rs2[47:32]` = C 행렬의 열 수
+- `rs2[63:48]` = C 행렬의 행 수
 - `funct` = 6
 
-**Commit Behavior:** This instruction commits on the cycle after the systolic array receives it. The systolic array remains idle until the subsequent OS/WS specific instructions are seen.
+**커밋 동작:** 이 명령은 시스톨릭 배열이 명령을 수신한 후 다음 사이클에 커밋됩니다. 시스톨릭 배열은 이후 OS/WS 특정 명령이 도착할 때까지 유휴 상태로 유지됩니다.
 
 ### Computing
-#### Explicitly Preloaded
-**Format:** `matmul.compute.preloaded rs1, rs2`
-- `rs1[31:0]` = local scratchpad address (systolic array single-axis addressed) of A matrix
-- `rs1[47:32]` = number of columns of A matrix
-- `rs1[63:48]` = number of rows of A matrix
-- `rs2[31:0]` = local scratchpad address (systolic array single-axis addressed) of B matrix (when output-stationary), or D matrix (when weight-stationary)
-- `rs2[47:32]` = number of columns of B/D matrix
-- `rs2[63:48]` = number of rows of B/D matrix
+#### 명시적 사전 로딩
+**형식:** `matmul.compute.preloaded rs1, rs2`
+- `rs1[31:0]` = A 행렬의 로컬 스크래치패드 주소(시스톨릭 배열 단일 축 주소 지정)
+- `rs1[47:32]` = A 행렬의 열 수
+- `rs1[63:48]` = A 행렬의 행 수
+- `rs2[31:0]` = B 행렬의 로컬 스크래치패드 주소(시스톨릭 배열 단일 축 주소 지정) 또는 D 행렬(weight-stationary의 경우)
+- `rs2[47:32]` = B/D 행렬의 열 수
+- `rs2[63:48]` = B/D 행렬의 행 수
 - `funct` = 4
-- This instruction will compute on the value preloaded (D if output-stationary, or B if weight-stationary)
+- 이 명령은 사전 로딩된 값(D 또는 B)으로 연산을 수행합니다.
 
-#### Re-use Previous Preloads
-**Format:** `matmul.compute.accumulated rs1, rs2`
+#### 이전 사전 로딩 재사용
+
+**형식:** `matmul.compute.accumulated rs1, rs2`
 - `funct` = 5
-- `rs1` and `rs2` have the same encoding as the `matmul.compute.preloaded` encoding
-- If output-stationary, this instruction will compute on the previously computed result (C) in the systolic array, accumulating on top of it
-- If weight-stationary, this instruction will compute on the previously preloaded weights (B) in the systolic array
+- `rs1`과 `rs2`는 `matmul.compute.preloaded`와 동일한 인코딩을 가집니다.
+- output-stationary의 경우, 이 명령은 시스톨릭 배열의 이전에 계산된 결과(C)로 연산을 수행하며, 그 위에 누적합니다.
+- weight-stationary의 경우, 이 명령은 시스톨릭 배열의 이전에 사전 로딩된 가중치(B)로 연산을 수행합니다.
 
 ## Loop Instructions
 
-Gemmini includes CISC-type instructions which can perform matmuls and convolutions on data that is much larger than `DIMxDIM`.
+Gemmini에는 `DIMxDIM`보다 훨씬 큰 데이터를 대상으로 행렬 곱셈 및 컨볼루션을 수행할 수 있는 CISC 유형의 명령이 포함되어 있습니다.
 
-There's nothing these CISC instructions do which a programmer couldn't do by tiling and looping through the other ISA instructions described above;
-however, these CISC instructions may achieve higher throughput than such tiled loops written by non-expert programmers.
-The CISC instructions should be considered performance enhancers; they do not give the accelerator any new functionality that it wouldn't have otherwise.
+이러한 CISC 명령은 프로그래머가 위에서 설명한 다른 ISA 명령을 통해 타일링하고 루프를 구성할 수 있는 모든 작업을 수행할 수 있지만, 비전문 프로그래머가 작성한 타일링된 루프보다 더 높은 처리량을 달성할 수 있습니다.
+CISC 명령은 성능 향상을 위한 도구로 간주해야 하며, 가속기에 추가적인 기능을 제공하지 않습니다.
 
-The CISC instructions have too many operands to fit into a single RISC-V custom instruction.
-Therefore, they are implemented as a sequence of many RISC-V custom instructions which must be called consecutively by the programmer.
+CISC 명령에는 하나의 RISC-V 사용자 정의 명령어로는 너무 많은 피연산자가 있습니다.
+따라서 이들은 일련의 많은 RISC-V 사용자 정의 명령어로 구현되며, 프로그래머가 연속적으로 호출해야 합니다.
 
-These instructions can be found `software/gemmini-rocc-tests/include/gemmini.h`, together with example usages.
-We list below their arguments.
+이 명령들은 `software/gemmini-rocc-tests/include/gemmini.h`에서 찾을 수 있으며, 예제 사용법도 포함되어 있습니다.
+아래에 그들의 인수를 나열합니다.
 
-**These loop instructions are experimental and subject to change.**
+**이 루프 명령어들은 실험적이며 변경될 수 있습니다.**
 
-### `gemmini_loop_ws` Matmul Loop (WS Dataflow)
+### `gemmini_loop_ws` 행렬 곱셈 루프(WS 데이터 흐름)
 
-This instruction calculates `A * B + D = C`, but `A`, `B`, `D`, and `C` can all be larger than `DIMxDIM`.
-`A`, and `B` must be of type `inputType`, but both `D` and `C` can be _either_ `inputType` or `accType`.
+이 명령은 `A * B + D = C`를 계산하지만, `A`, `B`, `D`, `C`는 모두 `DIMxDIM`보다 클 수 있습니다.
+`A`와 `B`는 `inputType`이어야 하지만, `D`와 `C`는 `inputType` 또는 `accType`일 수 있습니다.
 
-The sizes of these matrices are represented by `I`, `J`, and `K`:
+이 행렬들의 크기는 `I`, `J`, `K`로 표현됩니다:
 
 ```
-scratchpad rows of A = I * K * DIM
-scratchpad rows of B = K * J * DIM
-accumulator rows of D = I * J * DIM
-accumulator rows of C = I * J * DIM
+A의 스크래치패드 행 수 = I * K * DIM
+B의 스크래치패드 행 수 = K * J * DIM
+D의 누산기 행 수 = I * J * DIM
+C의 누산기 행 수 = I * J * DIM
 ```
 
-However, the total number of scratchpad rows taken up by a single `gemmini_loop_ws` must be at most **half** of the total scratchpad size, because Gemmini performs double-buffering during CISC instructions.
-To compute larger matrix multiplies, the loop instructions must also be tiled within an outer loop.
+그러나 단일 `gemmini_loop_ws`로 처리할 수 있는 총 스크래치패드 행 수는 전체 스크래치패드 크기의 **절반**을 초과할 수 없습니다. 이는 Gemmini가 CISC 명령어 동안 더블 버퍼링을 수행하기 때문입니다.
+더 큰 행렬 곱셈을 수행하려면, 루프 명령어를 외부 루프 내에서 타일링해야 합니다.
 
-To support outer-tiling of the `gemmini_loop_ws` instruction, we include an argument called `ex_accumulate`, which determines whether to perform a matmul on top of the partial sums that already exist within the accumulator (from previous calls to `gemmini_loop_ws` within the same outer-loop).
+`gemmini_loop_ws` 명령의 외부 타일링을 지원하기 위해 `ex_accumulate`라는 인수가 포함되어 있으며, 이는 동일한 외부 루프 내에서 `gemmini_loop_ws`를 여러 번 호출하여 이미 누산기에 있는 부분 합계 위에 행렬 곱셈을 수행할지 여부를 결정합니다.
 
-### `gemmini_loop_conv_ws` Conv Loop (WS Dataflow)
+### `gemmini_loop_conv_ws` 컨볼루션 루프(WS 데이터 흐름)
 
-Gemmini also includes a CISC instruction for convolutions, implemented similarly to the matmul CISC instruction.
-`gemmini_loop_conv_ws` will perform a convolution with the WS dataflow, and also supports features such as max-pooling, transpose convolutions, and various preprocessing transformations on the weight and input data.
+Gemmini는 컨볼루션을 위한 CISC 명
 
-Like `gemmini_loop_ws`, the inputs to a single `gemmini_loop_conv_ws` call must fit within half of Gemmini's private memory, to support double-buffering.
-If the programmer would like to perform larger convolutions, they must tile and wrap `gemmini_loop_conv_ws` within an outer-loop.
+령도 포함하고 있으며, 이는 행렬 곱셈 CISC 명령과 유사하게 구현되었습니다.
+`gemmini_loop_conv_ws`는 WS 데이터 흐름으로 컨볼루션을 수행하며, 맥스 풀링, 전치 컨볼루션 및 가중치와 입력 데이터에 대한 다양한 전처리 변환과 같은 기능도 지원합니다.
+
+`gemmini_loop_ws`와 마찬가지로, 단일 `gemmini_loop_conv_ws` 호출의 입력은 Gemmini의 개인 메모리의 절반에 맞아야 하며, 이는 더블 버퍼링을 지원하기 위해서입니다.
+프로그래머가 더 큰 컨볼루션을 수행하려는 경우, 외부 루프 내에서 `gemmini_loop_conv_ws`를 타일링하고 래핑해야 합니다.
+
 
 # Citing Gemmini
-If Gemmini helps you in your academic research, you are encouraged to cite our paper. Here is an example bibtex:
+
+Gemmini가 귀하의 학술 연구에 도움이 되었다면, 논문에서 Gemmini를 인용하는 것을 권장합니다. 다음은 인용 예제입니다:
+
 ```
 @INPROCEEDINGS{gemmini-dac,
   author={Genc, Hasan and Kim, Seah and Amid, Alon and Haj-Ali, Ameer and Iyer, Vighnesh and Prakash, Pranav and Zhao, Jerry and Grubb, Daniel and Liew, Harrison and Mao, Howard and Ou, Albert and Schmidt, Colin and Steffl, Samuel and Wright, John and Stoica, Ion and Ragan-Kelley, Jonathan and Asanovic, Krste and Nikolic, Borivoje and Shao, Yakun Sophia},
@@ -654,5 +653,7 @@ If Gemmini helps you in your academic research, you are encouraged to cite our p
 
 # Acknowledgements
 
-- This project was, in part, funded by the U.S. Government under the DARPA RTML program (contract FA8650-20-2-7006). The views and conclusions contained in this document are those of the authors and should not be interpreted as representing the official policies, either expressed or implied, of the U.S. Government.
-- The Gemmini [logo](./img/full-logo.svg) was designed by Dima Nikiforov ([@CobbledSteel](https://github.com/CobbledSteel)).
+- 이 프로젝트는 부분적으로 DARPA RTML 프로그램(계약 번호 FA8650-20-2-7006) 하에 미 정부의 자금 지원을 받았습니다. 이 문서에 포함된 견해와 결론은 저자의 것이며, 미 정부의 공식 정책을 나타내는 것으로 해석되어서는 안 됩니다.
+- Gemmini [로고](./img/full-logo.svg)는 Dima Nikiforov([@CobbledSteel](https://github.com/CobbledSteel))가 디자인했습니다.
+
+
